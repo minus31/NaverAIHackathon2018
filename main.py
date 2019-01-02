@@ -271,8 +271,8 @@ if __name__ == '__main__':
     args = argparse.ArgumentParser()
 
     # hyperparameters
-    args.add_argument('--epochs', type=int, default=700)
-    args.add_argument('--batch_size', type=int, default=128)
+    args.add_argument('--epochs', type=int, default=1000)
+    args.add_argument('--batch_size', type=int, default=256)
 
     # DONOTCHANGE: They are reserved for nsml
     args.add_argument('--mode', type=str, default='train', help='submit일때 해당값이 test로 설정됩니다.')
@@ -345,5 +345,5 @@ if __name__ == '__main__':
             print(res.history)
             train_loss, train_acc = res.history['loss'][0], res.history['acc'][0]
             nsml.report(summary=True, epoch=epoch, epoch_total=nb_epoch, loss=train_loss, acc=train_acc)
-            if epoch > 100 :
+            if epoch > 900 :
                 nsml.save(epoch)
