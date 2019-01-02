@@ -215,46 +215,46 @@ def densenet(input_shape,num_classes):
     act_2 = Activation('relu')(conv_2)
     merged_4 = concatenate([act_2, merged_3], axis=-1)
 
-#     ###### Transition layer 2 #####
+    ###### Transition layer 2 #####
 
-#     conv_1 = Conv2D(32, (1, 1), padding='same')(merged_4)
-#     act_1 = Activation('relu')(conv_1)
-#     avg_p_1 = AveragePooling2D(strides=2)(act_1)
+    conv_1 = Conv2D(32, (1, 1), padding='same')(merged_4)
+    act_1 = Activation('relu')(conv_1)
+    avg_p_1 = AveragePooling2D(strides=2)(act_1)
 
 
-#     ##### DENSE BLOCK 3 #####
+    ##### DENSE BLOCK 3 #####
 
-#     bn_1 = BatchNormalization()(avg_p_1)
-#     conv_1 = Conv2D(32, (1, 1), padding='same')(bn_1)
-#     act_1 = Activation('relu')(conv_1)
-#     bn_2 = BatchNormalization()(act_1)
-#     conv_2 = Conv2D(8, (3, 3), padding='same')(bn_2)
-#     act_2 = Activation('relu')(conv_2)
-#     merged_1 =concatenate([act_2, avg_p_1], axis=-1)
+    bn_1 = BatchNormalization()(avg_p_1)
+    conv_1 = Conv2D(32, (1, 1), padding='same')(bn_1)
+    act_1 = Activation('relu')(conv_1)
+    bn_2 = BatchNormalization()(act_1)
+    conv_2 = Conv2D(8, (3, 3), padding='same')(bn_2)
+    act_2 = Activation('relu')(conv_2)
+    merged_1 =concatenate([act_2, avg_p_1], axis=-1)
 
-#     bn_1 = BatchNormalization()(merged_1)
-#     conv_1 = Conv2D(32, (1, 1), padding='same')(bn_1)
-#     act_1 = Activation('relu')(conv_1)
-#     bn_2 = BatchNormalization()(act_1)
-#     conv_2 = Conv2D(8, (3, 3), padding='same')(bn_2)
-#     act_2 = Activation('relu')(conv_2)
-#     merged_2 =concatenate([act_2, merged_1], axis=-1)
+    bn_1 = BatchNormalization()(merged_1)
+    conv_1 = Conv2D(32, (1, 1), padding='same')(bn_1)
+    act_1 = Activation('relu')(conv_1)
+    bn_2 = BatchNormalization()(act_1)
+    conv_2 = Conv2D(8, (3, 3), padding='same')(bn_2)
+    act_2 = Activation('relu')(conv_2)
+    merged_2 =concatenate([act_2, merged_1], axis=-1)
 
-#     bn_1 = BatchNormalization()(merged_2)
-#     conv_1 = Conv2D(32, (1, 1), padding='same')(bn_1)
-#     act_1 = Activation('relu')(conv_1)
-#     bn_2 = BatchNormalization()(act_1)
-#     conv_2 = Conv2D(8, (3, 3), padding='same')(bn_2)
-#     act_2 = Activation('relu')(conv_2)
-#     merged_3 =concatenate([act_2, merged_2], axis=-1)
+    bn_1 = BatchNormalization()(merged_2)
+    conv_1 = Conv2D(32, (1, 1), padding='same')(bn_1)
+    act_1 = Activation('relu')(conv_1)
+    bn_2 = BatchNormalization()(act_1)
+    conv_2 = Conv2D(8, (3, 3), padding='same')(bn_2)
+    act_2 = Activation('relu')(conv_2)
+    merged_3 =concatenate([act_2, merged_2], axis=-1)
 
-#     bn_1 = BatchNormalization()(merged_3)
-#     conv_1 = Conv2D(32, (1, 1), padding='same')(bn_1)
-#     act_1 = Activation('relu')(conv_1)
-#     bn_2 = BatchNormalization()(act_1)
-#     conv_2 = Conv2D(8, (3, 3), padding='same')(bn_2)
-#     act_2 = Activation('relu')(conv_2)
-#     merged_4 =concatenate([act_2, merged_3], axis=-1)
+    bn_1 = BatchNormalization()(merged_3)
+    conv_1 = Conv2D(32, (1, 1), padding='same')(bn_1)
+    act_1 = Activation('relu')(conv_1)
+    bn_2 = BatchNormalization()(act_1)
+    conv_2 = Conv2D(8, (3, 3), padding='same')(bn_2)
+    act_2 = Activation('relu')(conv_2)
+    merged_4 =concatenate([act_2, merged_3], axis=-1)
 
     ## Dense Layer with GlobalAveragePooling
 
@@ -345,4 +345,5 @@ if __name__ == '__main__':
             print(res.history)
             train_loss, train_acc = res.history['loss'][0], res.history['acc'][0]
             nsml.report(summary=True, epoch=epoch, epoch_total=nb_epoch, loss=train_loss, acc=train_acc)
-            nsml.save(epoch)
+            if epoch > 100 :
+                nsml.save(epoch)
