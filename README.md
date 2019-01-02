@@ -1,7 +1,7 @@
 # 네이버 AI 해커톤 2018_Ai Vision
 
 ## TEAM : GodGam (Hyun, Jaeyoung Yoon, Dooyoung Ryu)
-
+ > 현재 mAP : 0.133389599
 ## Envirionment
 
   - Python 3.6
