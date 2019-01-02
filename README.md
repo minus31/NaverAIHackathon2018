@@ -11,7 +11,7 @@
   - torch 0.4
   - keras 2.2
 
-## files
+## Files
   - `setup.py` : NSML 세션의 환경 설정
   - `requirements.txt` : 의존 패키지 리스트 (pip로 설정 가능한 것)
   - `main.py` : 기본 entry 파일
