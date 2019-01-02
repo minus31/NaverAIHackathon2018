@@ -19,6 +19,9 @@
 
 ## Directories
   - `baseline` : Naver에서 제공한 베이스라인 모델 (mAP : 0.0116, keras implemented)
+  - `mains` : 작업한 main.py
+    > 파일의 이름에 다음 예시와 같이 epoch 수, mAP기준의 성능을 기입한다.
+    > 예; main_500ep_0.2mAP.py
 
 ## Training data  : 상품 이미지
   - number of classes : 1000
