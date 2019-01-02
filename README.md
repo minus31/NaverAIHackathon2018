@@ -25,9 +25,14 @@
   - total volume : 7,104
   - 이미지는 저작권의 이유로 비공개, 다만 하나의 클래스의 이미지를 공개 했음.
 
-|공개된 샘플이미지 |
-|:------:|:------:|:------:|:------:|:------:|:------:|
-|<img src="./sample_image/ex (1).jpg">|<img src="./sample_image/ex (2).jpg">|<img src="./sample_image/ex (3).jpg">|<img src="./sample_image/ex (4).jpg">|<img src="./sample_image/ex (5).jpg">|<img src="./sample_image/ex (6).jpg">|
+  <p float="left">
+    <img src="./sample_image/ex (1).jpg" width="100" />
+    <img src="./sample_image/ex (2).jpg" width="100" />
+    <img src="./sample_image/ex (3).jpg" width="100" />
+    <img src="./sample_image/ex (4).jpg" width="100" />
+    <img src="./sample_image/ex (5).jpg" width="100" />
+    <img src="./sample_image/ex (6).jpg" width="100" />
+  </p>
 
 ## Test data
   - Query Image를 질의 하면, Reference image 에서 질의한 이미지와 같은 이미지를 결과로 출력한다.
