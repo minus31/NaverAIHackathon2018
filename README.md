@@ -1,5 +1,5 @@
 # 네이버 AI 해커톤 2018_Ai Vision
--------------
+
 ## TEAM : GodGam (Hyun, Jaeyoung Yoon, Dooyoung Ryu)
 
 ## Envirionment
@@ -18,7 +18,7 @@
   - `.nsmlignore` : Session에 전달하지 않을 파일 목록
 
 ## Directories
-  - `baseline` : Naver에서 제공한 베이스라인 모델 (mAP : 0.0116)
+  - `baseline` : Naver에서 제공한 베이스라인 모델 (mAP : 0.0116, keras implemented)
 
 ## Training data  : 상품 이미지
   - number of classes : 1000
@@ -38,13 +38,9 @@
   - Query Image를 질의 하면, Reference image 에서 질의한 이미지와 같은 이미지를 결과로 출력한다.
   - 1,322 장의 이미지 중, Query 이미지 : 195, Reference 이미지 : 1,127
 
-  Metric
+### Metric
   - [mAP(mean average precision)](https://en.wikipedia.org/wiki/Evaluation_measures_(information_retrieval)
   - 동점자의 경우 Recall@K 계산
-
-  ## Baseline Model
-  - Keras implemented
-
 
 
 <strong>[NSML](https://hack.nsml.navercorp.com/intro)</strong>
@@ -89,7 +85,10 @@
     </td>
   </tr>
 </table>
+
+
 ## 미션
+
 * 예선 1차 : 소규모의 라인프렌즈 상품 image retrieval
 * 예선 2차 / 결선(온라인, 오프라인) : 대규모의 일반 상품 image retrieval
 > ※ 모든 미션은 NSML 플랫폼을 사용해 해결합니다.<br>
