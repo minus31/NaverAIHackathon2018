@@ -36,7 +36,7 @@ def bind_model(model):
 
         # Query 개수: 195
         # Reference(DB) 개수: 1,127
-        # Total (query + reference): 1,322
+        # Total (query + reference): 1,1282
 
         queries, query_img, references, reference_img = preprocess(queries, db)
 
@@ -143,40 +143,40 @@ def densenet(input_shape,num_classes):
     ##### DENSE BLOCK 1 #####
 
     bn_1 = BatchNormalization()(max_pool)
-    conv_1 = Conv2D(32, (1, 1), padding='same')(bn_1)
+    conv_1 = Conv2D(128, (1, 1), padding='same')(bn_1)
     act_1 = Activation('relu')(conv_1)
     bn_2 = BatchNormalization()(act_1)
-    conv_2 = Conv2D(8, (3, 3), padding='same')(bn_2)
+    conv_2 = Conv2D(32, (3, 3), padding='same')(bn_2)
     act_2 = Activation('relu')(conv_2)
     merged_1 = concatenate([act_2, max_pool], axis=-1)
 
     bn_1 = BatchNormalization()(merged_1)
-    conv_1 = Conv2D(32, (1, 1), padding='same')(bn_1)
+    conv_1 = Conv2D(128, (1, 1), padding='same')(bn_1)
     act_1 = Activation('relu')(conv_1)
     bn_2 = BatchNormalization()(act_1)
-    conv_2 = Conv2D(8, (3, 3), padding='same')(bn_2)
+    conv_2 = Conv2D(32, (3, 3), padding='same')(bn_2)
     act_2 = Activation('relu')(conv_2)
     merged_2 = concatenate([act_2, merged_1], axis=-1)
 
     bn_1 = BatchNormalization()(merged_2)
-    conv_1 = Conv2D(32, (1, 1), padding='same')(bn_1)
+    conv_1 = Conv2D(128, (1, 1), padding='same')(bn_1)
     act_1 = Activation('relu')(conv_1)
     bn_2 = BatchNormalization()(act_1)
-    conv_2 = Conv2D(8, (3, 3), padding='same')(bn_2)
+    conv_2 = Conv2D(32, (3, 3), padding='same')(bn_2)
     act_2 = Activation('relu')(conv_2)
     merged_3 = concatenate([act_2, merged_2], axis=-1)
 
     bn_1 = BatchNormalization()(merged_3)
-    conv_1 = Conv2D(32, (1, 1), padding='same')(bn_1)
+    conv_1 = Conv2D(128, (1, 1), padding='same')(bn_1)
     act_1 = Activation('relu')(conv_1)
     bn_2 = BatchNormalization()(act_1)
-    conv_2 = Conv2D(8, (3, 3), padding='same')(bn_2)
+    conv_2 = Conv2D(32, (3, 3), padding='same')(bn_2)
     act_2 = Activation('relu')(conv_2)
     merged_4 = concatenate([act_2, merged_3], axis=-1)
 
     ###### Transition layer 1 #####
 
-    conv_1 = Conv2D(32, (1, 1), padding='same')(merged_4)
+    conv_1 = Conv2D(128, (1, 1), padding='same')(merged_4)
     act_1 = Activation('relu')(conv_1)
     avg_p_1 = AveragePooling2D(strides=2)(act_1)
 
@@ -184,40 +184,40 @@ def densenet(input_shape,num_classes):
     ##### DENSE BLOCK 2 #####
 
     bn_1 = BatchNormalization()(avg_p_1)
-    conv_1 = Conv2D(32, (1, 1), padding='same')(bn_1)
+    conv_1 = Conv2D(128, (1, 1), padding='same')(bn_1)
     act_1 = Activation('relu')(conv_1)
     bn_2 = BatchNormalization()(act_1)
-    conv_2 = Conv2D(8, (3, 3), padding='same')(bn_2)
+    conv_2 = Conv2D(32, (3, 3), padding='same')(bn_2)
     act_2 = Activation('relu')(conv_2)
     merged_1 = concatenate([act_2, avg_p_1], axis=-1)
 
     bn_1 = BatchNormalization()(merged_1)
-    conv_1 = Conv2D(32, (1, 1), padding='same')(bn_1)
+    conv_1 = Conv2D(128, (1, 1), padding='same')(bn_1)
     act_1 = Activation('relu')(conv_1)
     bn_2 = BatchNormalization()(act_1)
-    conv_2 = Conv2D(8, (3, 3), padding='same')(bn_2)
+    conv_2 = Conv2D(32, (3, 3), padding='same')(bn_2)
     act_2 = Activation('relu')(conv_2)
     merged_2 = concatenate([act_2, merged_1], axis=-1)
 
     bn_1 = BatchNormalization()(merged_2)
-    conv_1 = Conv2D(32, (1, 1), padding='same')(bn_1)
+    conv_1 = Conv2D(128, (1, 1), padding='same')(bn_1)
     act_1 = Activation('relu')(conv_1)
     bn_2 = BatchNormalization()(act_1)
-    conv_2 = Conv2D(8, (3, 3), padding='same')(bn_2)
+    conv_2 = Conv2D(32, (3, 3), padding='same')(bn_2)
     act_2 = Activation('relu')(conv_2)
     merged_3 = concatenate([act_2, merged_2], axis=-1)
 
     bn_1 = BatchNormalization()(merged_3)
-    conv_1 = Conv2D(32, (1, 1), padding='same')(bn_1)
+    conv_1 = Conv2D(128, (1, 1), padding='same')(bn_1)
     act_1 = Activation('relu')(conv_1)
     bn_2 = BatchNormalization()(act_1)
-    conv_2 = Conv2D(8, (3, 3), padding='same')(bn_2)
+    conv_2 = Conv2D(32, (3, 3), padding='same')(bn_2)
     act_2 = Activation('relu')(conv_2)
     merged_4 = concatenate([act_2, merged_3], axis=-1)
 
     ###### Transition layer 2 #####
 
-    conv_1 = Conv2D(32, (1, 1), padding='same')(merged_4)
+    conv_1 = Conv2D(128, (1, 1), padding='same')(merged_4)
     act_1 = Activation('relu')(conv_1)
     avg_p_1 = AveragePooling2D(strides=2)(act_1)
 
@@ -225,34 +225,34 @@ def densenet(input_shape,num_classes):
     ##### DENSE BLOCK 3 #####
 
     bn_1 = BatchNormalization()(avg_p_1)
-    conv_1 = Conv2D(32, (1, 1), padding='same')(bn_1)
+    conv_1 = Conv2D(128, (1, 1), padding='same')(bn_1)
     act_1 = Activation('relu')(conv_1)
     bn_2 = BatchNormalization()(act_1)
-    conv_2 = Conv2D(8, (3, 3), padding='same')(bn_2)
+    conv_2 = Conv2D(32, (3, 3), padding='same')(bn_2)
     act_2 = Activation('relu')(conv_2)
     merged_1 =concatenate([act_2, avg_p_1], axis=-1)
 
     bn_1 = BatchNormalization()(merged_1)
-    conv_1 = Conv2D(32, (1, 1), padding='same')(bn_1)
+    conv_1 = Conv2D(128, (1, 1), padding='same')(bn_1)
     act_1 = Activation('relu')(conv_1)
     bn_2 = BatchNormalization()(act_1)
-    conv_2 = Conv2D(8, (3, 3), padding='same')(bn_2)
+    conv_2 = Conv2D(32, (3, 3), padding='same')(bn_2)
     act_2 = Activation('relu')(conv_2)
     merged_2 =concatenate([act_2, merged_1], axis=-1)
 
     bn_1 = BatchNormalization()(merged_2)
-    conv_1 = Conv2D(32, (1, 1), padding='same')(bn_1)
+    conv_1 = Conv2D(128, (1, 1), padding='same')(bn_1)
     act_1 = Activation('relu')(conv_1)
     bn_2 = BatchNormalization()(act_1)
-    conv_2 = Conv2D(8, (3, 3), padding='same')(bn_2)
+    conv_2 = Conv2D(32, (3, 3), padding='same')(bn_2)
     act_2 = Activation('relu')(conv_2)
     merged_3 =concatenate([act_2, merged_2], axis=-1)
 
     bn_1 = BatchNormalization()(merged_3)
-    conv_1 = Conv2D(32, (1, 1), padding='same')(bn_1)
+    conv_1 = Conv2D(128, (1, 1), padding='same')(bn_1)
     act_1 = Activation('relu')(conv_1)
     bn_2 = BatchNormalization()(act_1)
-    conv_2 = Conv2D(8, (3, 3), padding='same')(bn_2)
+    conv_2 = Conv2D(32, (3, 3), padding='same')(bn_2)
     act_2 = Activation('relu')(conv_2)
     merged_4 =concatenate([act_2, merged_3], axis=-1)
 
@@ -271,8 +271,8 @@ if __name__ == '__main__':
     args = argparse.ArgumentParser()
 
     # hyperparameters
-    args.add_argument('--epochs', type=int, default=800)
-    args.add_argument('--batch_size', type=int, default=128)
+    args.add_argument('--epochs', type=int, default=700)
+    args.add_argument('--batch_size', type=int, default=256)
 
     # DONOTCHANGE: They are reserved for nsml
     args.add_argument('--mode', type=str, default='train', help='submit일때 해당값이 test로 설정됩니다.')
@@ -325,7 +325,7 @@ if __name__ == '__main__':
         x_train = np.asarray(img_list)
         labels = np.asarray(label_list)
         y_train = keras.utils.to_categorical(labels, num_classes=num_classes)
-        x_train = x_train.astype('float32')
+        x_train = x_train.astype('float128')
         x_train /= 255
         print(len(labels), 'train samples')
 
@@ -345,5 +345,5 @@ if __name__ == '__main__':
             print(res.history)
             train_loss, train_acc = res.history['loss'][0], res.history['acc'][0]
             nsml.report(summary=True, epoch=epoch, epoch_total=nb_epoch, loss=train_loss, acc=train_acc)
-            if epoch > 100 :
+            if epoch > 600 :
                 nsml.save(epoch)
