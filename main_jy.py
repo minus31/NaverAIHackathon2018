@@ -280,7 +280,7 @@ if __name__ == '__main__':
         """ Training Model"""
         
         for epoch in range(nb_epoch):
-            total_batch = len(image_set)
+            total_batch = len(loader)
 
             tnet.train()
 
