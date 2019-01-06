@@ -275,11 +275,10 @@ if __name__ == '__main__':
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
 
-        image_set = TripletImageSet(DATASET_PATH + '/train/train_data', 20, transform=transform, loader=get_image_from_path)
-        loader = DataLoader(image_set, batch_size=batch_size, shuffle=True)
-        """ Training Model"""
-        
+        """ Training Model"""        
         for epoch in range(nb_epoch):
+            image_set = TripletImageSet(DATASET_PATH + '/train/train_data', 20, transform=transform, loader=get_image_from_path)
+            loader = DataLoader(image_set, batch_size=batch_size, shuffle=True)
             total_batch = len(loader)
 
             tnet.train()
