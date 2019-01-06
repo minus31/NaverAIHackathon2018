@@ -3,4 +3,4 @@ etc/
 baseline/
 sample_image/
 mains/
-tmp/
+main.py
