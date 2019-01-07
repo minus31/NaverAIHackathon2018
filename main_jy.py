@@ -142,24 +142,32 @@ def make_triplet_set(path_data, k=10):
 
         return li_class_filename
     
-    class_file = make_class_file(path_data)
+    class_file = make_class_file(path_image)
     
     li_result = []
     li_class = class_file.keys()
-    for k, v in class_file.items():
-        for _ in range(10):
-            triplet_set = list(np.random.choice(class_file[k], 2, replace=False))
-
-            negative_idx = np.random.choice(list(li_class), 1)
-            while negative_idx[0] == k:
-                negative_idx = np.random.choice(list(li_class), 1)
-
-            negative_filename = np.random.choice(class_file[negative_idx[0]], 1)[0]
-            triplet_set.append(negative_filename)
-            
-            li_result.append(triplet_set)
     
-    print(li_result[0])
+    # make achor - positive
+    anchor_positive = []
+    for k, v in class_file.items():
+        for i in range(len(class_file[k])):
+            for j in range(i+1, len(class_file[k])):
+                anchor_positive.append([class_file[k][i], class_file[k][j]])
+    
+    # make negative
+    for set_a_n in anchor_positive:
+        idx_k = (set_a_n[0].split('/')[0])
+        for _ in range(10):
+            negative_idx = np.random.choice(list(li_class), 1)
+            while negative_idx[0] == idx_k:
+                negative_idx = np.random.choice(list(li_class), 1)
+            
+            negative_filename = np.random.choice(class_file[negative_idx[0]], 1)[0]
+            
+            triplet = set_a_n.copy()
+            triplet.append(negative_filename)
+            li_result.append(triplet)
+    
     return li_result
 
 def get_image_from_path(path):
@@ -264,7 +272,7 @@ if __name__ == '__main__':
         bTrainmode = True
 
         """ set loss and optim"""
-        criterion = torch.nn.MarginRankingLoss(margin = 0.1)
+        criterion = torch.nn.MarginRankingLoss(margin = 1)
         optimizer = optim.SGD(tnet.embeddingnet.fc.parameters(), lr=0.001, weight_decay=0.0005, momentum=0.00005)
 
         """ Load data """
