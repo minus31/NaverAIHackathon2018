@@ -5,4 +5,5 @@ sample_image/
 mains/
 tmp/
 .vscode/
-
+main_jy.py
+main.py
