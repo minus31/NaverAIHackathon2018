@@ -141,16 +141,18 @@ def get_related_img(x_train, labels, model):
             f = get_feature_layer([x_train[i*1000:], 0])[0]
             feature_vec = np.concatenate((feature_vec,f), axis=0)
             del f
+            print("get_feature_vecter !!")
         else :
             f = get_feature_layer([x_train[i*1000:(i+1)*1000], 0])[0]
             feature_vec = np.concatenate((feature_vec,f), axis=0)
-
+        print(i)
     # feature_vec =
 
     positive_train = []
     negative_train = []
 
     for i in idx:
+        print("progress {}/{}".format(i, x_train.shape[0]))
         candidates_id = idx[labels == labels[i]]
         candidates_vec = feature_vec[candidates_id]
         dist_ls = []
@@ -160,9 +162,10 @@ def get_related_img(x_train, labels, model):
 
         max_ix = np.argmax(dist_ls)
         max_idx = candidates_id[max_ix]
+        print("max_index", max_idx)
         positive_train.append(x_train[max_idx])
 
-        candidates_id = idx[labels != labels[i]]
+        candidates_id = np.random.choice(idx[labels != labels[i]], 100)
         candidates_vec = feature_vec[candidates_id]
         dist_ls = []
 
@@ -172,6 +175,7 @@ def get_related_img(x_train, labels, model):
 
         min_ix = np.argmin(dist_ls)
         min_idx = candidates_id[min_ix]
+        print("max_index", min_idx)
         negative_train.append(x_train[min_idx])
 
     print(len(negative_train), len(positive_train))
