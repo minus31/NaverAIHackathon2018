@@ -25,12 +25,21 @@ Model Architecture
 - build_model()
 """
 def build_model(input_shape):
-
+    ```
+    h1 : top of unet
+    h2 : second of unet
+    h3 : third of unet
+    h4 : forth of unet
+    ```
     inputs = Input(shape=input_shape)
+    #224x224x3
 
-    conv_1 = Conv2D(16, (7, 7), strides=2, padding='same')(inputs)
-    act_1 = Activation('relu')(conv_1)
-    max_pool = MaxPooling2D(pool_size=(3, 3), strides=2, padding='same')(act_1)
+    x = Conv2D(64, (3, 3), strides=1, padding='same')(inputs)
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
+    x = Conv2D(64, (3, 3), strides=2, padding='same')(x)
+    h1 = Activation('relu')(x)
+    # 112x112x64
 
     ##### DENSE BLOCK 1 #####
 

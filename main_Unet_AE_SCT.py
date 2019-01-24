@@ -23,7 +23,7 @@ from keras.regularizers import l2
 from keras.utils import multi_gpu_model
 
 from data_loader import train_data_loader
-from DenseNet import build_model
+from Unet import build_model
 
 
 ```
