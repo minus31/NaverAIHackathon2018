@@ -2,15 +2,16 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
+import nsml
+from nsml import DATASET_PATH
+import argparse
 
 import os
 import cv2
-import argparse
 import pickle
-import nsml
-from nsml import DATASET_PATH
 import numpy as np
 import keras
+from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential
 from keras.callbacks import ReduceLROnPlateau
 from keras import backend as K
@@ -22,8 +23,7 @@ from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, BatchNor
 from keras.regularizers import l2
 from keras.utils import multi_gpu_model
 
-from data_loader import train_data_loader
-from Unet import build_model
+
 
 
 ```
@@ -104,6 +104,8 @@ def bind_model(base_model):
 
     # DONOTCHANGE: They are reserved for nsml
     nsml.bind(save=save, load=load, infer=infer)
+
+
 ##### DISTANCE ##############
 
 
@@ -115,7 +117,7 @@ def l2_distance(q, r):
 def l2_distanceK(q, r):
     """Symbolic function to measure l2 distance"""
     return K.sqrt(K.sum((K.pow(q - r, 2))))
-############################
+
 
 ########### LOSS FUNCTIONS ############
 
@@ -138,12 +140,7 @@ def tri_cross_entropy(X, epsilon=1e-12):
     N = K.shape(y_pred)[1]
     ce = -K.sum(y_true * K.log(y_pred + 1e-9)) / K.cast(N, 'float32')
     return ce + triplet
-########################################
 
-# def accuracy(y_true, y_pred):
-#     y_pred = K.argmax(y_pred)
-#     score = [i == j for i,j in zip(y_true, K.round(y_pred))]
-#     return K.mean(score)
 
 ############ Positive, Negative Selector for triplet Loss  #######
 
@@ -167,67 +164,6 @@ def get_related_img(x_train, labels, model):
     print("neg : ", negative_train.shape, "pos:", positive_train.shape)
 
     return positive_train.reshape(-1,224,224,3), negative_train.reshape(-1,224,224,3)
-
-# def get_related_img(x_train, labels, model):
-#     """selector for triplet loss """
-#
-#     idx = np.arange(len(x_train))
-#     input_shape = x_train.shape[1:]
-#     model_ = model
-#     get_feature_layer = K.function(
-#         [model_.layers[0].input] + [K.learning_phase()], [model_.layers[-2].output])
-#
-#     for i in range(7):
-#         if i == 0:
-#             feature_vec = get_feature_layer([x_train[:1000], 0])[0]
-#         elif i == 6:
-#             f = get_feature_layer([x_train[i * 1000:], 0])[0]
-#             feature_vec = np.concatenate((feature_vec, f), axis=0)
-#             del f
-#             print("get_feature_vecter !!")
-#         else:
-#             f = get_feature_layer([x_train[i * 1000:(i + 1) * 1000], 0])[0]
-#             feature_vec = np.concatenate((feature_vec, f), axis=0)
-#         print(i)
-#     # feature_vec =
-#
-#     positive_train = []
-#     negative_train = []
-#
-#     for i in idx:
-#         print("progress {}/{}".format(i, x_train.shape[0]))
-#         candidates_id = idx[labels == labels[i]]
-#         candidates_vec = feature_vec[candidates_id]
-#         dist_ls = []
-#         for vec in candidates_vec:
-#             dist = l2_distance(feature_vec[i], vec)
-#             dist_ls.append(dist)
-#
-#         max_ix = np.argmax(dist_ls)
-#         max_idx = candidates_id[max_ix]
-#         print("max_index", max_idx)
-#         positive_train.append(x_train[max_idx])
-#
-#         candidates_id = np.random.choice(idx[labels != labels[i]], 100)
-#         candidates_vec = feature_vec[candidates_id]
-#         dist_ls = []
-#
-#         for vec in candidates_vec:
-#             dist = l2_distance(feature_vec[i], vec)
-#             dist_ls.append(dist)
-#
-#         min_ix = np.argmin(dist_ls)
-#         min_idx = candidates_id[min_ix]
-#         print("min_index", min_idx)
-#         negative_train.append(x_train[min_idx])
-#
-#     print(len(negative_train), len(positive_train))
-#
-#     negative_train = np.asarray(negative_train)
-#     positive_train = np.asarray(positive_train)
-#     return positive_train, negative_train
-
-########################################################
 
 
 # data preprocess for inference time
@@ -317,19 +253,34 @@ if __name__ == '__main__':
         output_path = ['./img_list.pkl', './label_list.pkl']
         train_dataset_path = DATASET_PATH + '/train/train_data'
 
-        if nsml.IS_ON_NSML:
-            # Caching file
-            nsml.cache(train_data_loader, data_path=train_dataset_path, img_size=input_shape[:2],
-                       output_path=output_path)
-        else:
-            # local에서 실험할경우 dataset의 local-path 를 입력해주세요.
-            train_data_loader(train_dataset_path,
-                              input_shape[:2], output_path=output_path)
+        train_gen = ImageDataGenerator(rescale=1./255)
+        train_datagen.flow_from_directory(train_dataset_path,
+                                                 target_size = (224,224,3),
+                                                 batch_size = 32,
+                                                 class_mode = 'categorical')
 
-        with open(output_path[0], 'rb') as img_f:
-            img_list = pickle.load(img_f)
-        with open(output_path[1], 'rb') as label_f:
-            label_list = pickle.load(label_f)
+        # if nsml.IS_ON_NSML:
+        #     # Caching file
+        #     nsml.cache(train_data_loader, data_path=train_dataset_path, img_size=input_shape[:2],
+        #                output_path=output_path)
+        # else:
+        #     # local에서 실험할경우 dataset의 local-path 를 입력해주세요.
+        #     train_data_loader(train_dataset_path,
+        #                       input_shape[:2], output_path=output_path)
+
+        gen = ImageDataGenerator().flow_from_directory(train_dataset_path,target_size=input_shape[:2],batch_size=32)
+
+        nbClasses = gen.nbClasses
+
+        model.fit_generator(generator=gen, samples_per_epoch)
+
+
+
+
+        # with open(output_path[0], 'rb') as img_f:
+        #     img_list = pickle.load(img_f)
+        # with open(output_path[1], 'rb') as label_f:
+        #     label_list = pickle.load(label_f)
         #####################################################################
         ############### Preprocessing #######################################
         x_train = np.asarray(img_list)
