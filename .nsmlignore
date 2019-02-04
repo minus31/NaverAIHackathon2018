@@ -1,9 +1,12 @@
+README.md
+models/
+mains/
+main_jy/
+.vscode/
 etc/
 .git/
 baseline/
 sample_image/
-mains/
 tmp/
 .vscode/
 main_jy.py
-main.py

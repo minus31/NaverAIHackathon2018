@@ -2,11 +2,9 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-
 import os
 import cv2
 import pickle
-
 
 def train_data_loader(data_path, img_size, output_path):
     label_list = []
@@ -33,7 +31,6 @@ def train_data_loader(data_path, img_size, output_path):
         pickle.dump(img_list, img_f)
     with open(output_path[1], 'wb') as label_f:
         pickle.dump(label_list, label_f)
-
 
 
 # nsml test_data_loader

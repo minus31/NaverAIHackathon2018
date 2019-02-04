@@ -24,13 +24,27 @@ Model Architecture
 
 - build_model()
 """
+
+def build_resnet_pretrained(input_shape):
+
+    from keras.applications.resnet50 import ResNet50
+
+    model = ResNet50(input_shape=input_shape, include_top=False)
+    x1 = GlobalAveragePooling2D()(model.output)
+    x2 = Dense(1383, use_bias=True, bias_initializer='zeros')(x1)
+    x3 = Activation('softmax')(x2)
+    model_new = Model(inputs=model.input, outputs=x3)
+    model_new.summary()
+
+    return model_new
+
 def build_model(input_shape):
-    ```
+    '''
     h1 : top of unet
     h2 : second of unet
     h3 : third of unet
     h4 : forth of unet
-    ```
+    '''
     inputs = Input(shape=input_shape)
     #224x224x3
 
