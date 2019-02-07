@@ -8,17 +8,23 @@ import time
 
 import nsml
 import numpy as np
-
+import math
 from nsml import DATASET_PATH
 import keras
+import tensorflow as tf
 from keras.models import Sequential, Model
 from keras.layers import Dense, Dropout, Flatten, Activation
-from keras.layers import Conv2D, MaxPooling2D
+from keras.layers import Conv2D, MaxPooling2D, Lambda
 from keras.callbacks import ReduceLROnPlateau
 from keras.preprocessing.image import ImageDataGenerator
-
+from keras.applications.resnet50 import preprocess_input
 from build_model import build_resnet_pretrained
 
+# Score
+# checkpoint - score
+#      0     - 0.6787675138977849
+#      2     - 0.6653599131009039
+#      4     - 0.631610545813576
 
 def bind_model(model):
     def save(dir_name):
@@ -78,8 +84,8 @@ def get_feature(model, queries, db):
     img_size = (224, 224)
     test_path = DATASET_PATH + '/test/test_data'
 
-    intermediate_layer_model = Model(inputs=model.input, outputs=model.layers[-2].output)
-    test_datagen = ImageDataGenerator(rescale=1. / 255, dtype='float32')
+    intermediate_layer_model = Model(inputs=model.input, outputs=model.layers[-1].output)
+    test_datagen = ImageDataGenerator(preprocessing_function=preprocess_input ,dtype='float32')
     query_generator = test_datagen.flow_from_directory(
         directory=test_path,
         target_size=(224, 224),
@@ -106,11 +112,41 @@ def get_feature(model, queries, db):
     return queries, query_vecs, db, reference_vecs
 
 
+def ArcFaceLoss(labels, features):
+
+    scale=64.
+    margin=0.5
+    embedding_dim = 2048
+    num_classes=1383
+    easy_margin=True
+    scope=None
+
+    cosine = features
+    cos_m = math.cos(margin)
+    sin_m = math.sin(margin)
+    mm = math.sin(math.pi - margin) * margin
+    threshold = math.cos(math.pi - margin)
+
+    one_hot_mask = tf.cast(labels, tf.float32)
+    labels = tf.argmax(labels, axis=-1)
+
+    cosine_theta_2 = tf.pow(cosine, 2., name='cosine_theta_2') # 가중치와 피쳐 상의 각을 제곱
+    sine_theta = tf.pow(1. - cosine_theta_2, .5, name='sine_theta') #
+
+    cosine_theta_m = scale * (cos_m * cosine - sin_m * sine_theta) * one_hot_mask
+
+    clip_mask = tf.to_float(cosine >= threshold) * scale * mm * one_hot_mask
+
+    cosine = scale * cosine * (1. - one_hot_mask) + tf.where(clip_mask > 0., cosine_theta_m, clip_mask)
+
+    return tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(labels=tf.cast(labels, tf.int64),
+                                                                        logits=cosine), name='arc_loss')
+
 if __name__ == '__main__':
     args = argparse.ArgumentParser()
 
     # hyperparameters
-    args.add_argument('--epoch', type=int, default=5)
+    args.add_argument('--epoch', type=int, default=100)
     args.add_argument('--batch_size', type=int, default=64)
     args.add_argument('--num_classes', type=int, default=1383)
 
@@ -140,14 +176,13 @@ if __name__ == '__main__':
 
         """ Initiate RMSprop optimizer """
         opt = keras.optimizers.rmsprop(lr=0.00045, decay=1e-6)
-        model.compile(loss='categorical_crossentropy',
-                      optimizer=opt,
-                      metrics=['accuracy'])
+        model.compile(loss=ArcFaceLoss,
+                      optimizer=opt)
 
         print('dataset path', DATASET_PATH)
 
         train_datagen = ImageDataGenerator(
-            rescale=1. / 255,
+            preprocessing_function=preprocess_input,
             shear_range=0.2,
             zoom_range=0.2,
             horizontal_flip=True)
@@ -158,12 +193,11 @@ if __name__ == '__main__':
             color_mode="rgb",
             batch_size=batch_size,
             class_mode="categorical",
-            shuffle=True,
-            seed=42
+            shuffle=True
         )
 
         """ Callback """
-        monitor = 'acc'
+        monitor = 'loss'
         reduce_lr = ReduceLROnPlateau(monitor=monitor, patience=3)
 
         """ Training loop """
@@ -181,7 +215,7 @@ if __name__ == '__main__':
             t2 = time.time()
             print(res.history)
             print('Training time for one epoch : %.1f' % ((t2 - t1)))
-            train_loss, train_acc = res.history['loss'][0], res.history['acc'][0]
-            nsml.report(summary=True, epoch=epoch, epoch_total=nb_epoch, loss=train_loss, acc=train_acc)
+            train_loss = res.history['loss'][0]
+            nsml.report(summary=True, epoch=epoch, epoch_total=nb_epoch, loss=train_loss)
             nsml.save(epoch)
         print('Total training time : %.1f' % (time.time() - t0))
