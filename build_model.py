@@ -50,7 +50,7 @@ def ArcFace(x):
 
     embedding_dim = 2048
     num_classes=1383
-    margin=0.5
+    margin=0.8
     features = x
 
     cos_m = math.cos(margin)
@@ -71,7 +71,7 @@ def constant_xavier_initializer(shape, dtype=tf.float32, uniform=True):
     """Initializer function."""
     if not dtype.is_floating:
         raise TypeError('Cannot create initializer for non-floating point type.')
-    
+
     if shape:
         fan_in = float(shape[-2]) if len(shape) > 1 else float(shape[-1])
         fan_out = float(shape[-1])

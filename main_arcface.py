@@ -115,7 +115,7 @@ def get_feature(model, queries, db):
 def ArcFaceLoss(labels, features):
 
     scale=64.
-    margin=0.5
+    margin=0.8
     embedding_dim = 2048
     num_classes=1383
     easy_margin=True
@@ -178,7 +178,7 @@ if __name__ == '__main__':
         opt = keras.optimizers.rmsprop(lr=0.00045, decay=1e-6)
         model.compile(loss=ArcFaceLoss,
                       optimizer=opt)
-
+        nsml.save('bt')
         print('dataset path', DATASET_PATH)
 
         train_datagen = ImageDataGenerator(
