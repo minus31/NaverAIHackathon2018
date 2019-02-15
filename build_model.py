@@ -30,6 +30,17 @@ Model Architecture
 - build_model()
 """
 
+def build_DenseNet169_pretrained(input_shape):
+
+    model = keras.applications.DenseNet121(input_shape=input_shape, include_top=False)
+    x1 = GlobalAveragePooling2D()(model.output)
+    x2 = Lambda(ArcFace)(x1)
+
+    model_new = Model(inputs=model.input, outputs=x2)
+    model_new.summary()
+
+    return model_new
+
 def build_resnet_pretrained(input_shape):
 
     from keras.applications.resnet50 import ResNet50
@@ -43,12 +54,11 @@ def build_resnet_pretrained(input_shape):
 
     return model_new
 
-
 import math
 
 def ArcFace(x):
 
-    embedding_dim = 2048
+    embedding_dim = 1024
     num_classes=1383
     margin=0.8
     features = x
