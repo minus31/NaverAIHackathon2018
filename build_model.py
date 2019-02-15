@@ -32,7 +32,7 @@ Model Architecture
 
 def build_DenseNet169_pretrained(input_shape):
 
-    model = keras.applications.DenseNet121(input_shape=input_shape, include_top=False)
+    model = keras.applications.DenseNet169(input_shape=input_shape, include_top=False)
     x1 = GlobalAveragePooling2D()(model.output)
     x2 = Lambda(ArcFace)(x1)
 
@@ -58,7 +58,7 @@ import math
 
 def ArcFace(x):
 
-    embedding_dim = 1024
+    embedding_dim = 1664
     num_classes=1383
     margin=0.8
     features = x

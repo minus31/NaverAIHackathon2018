@@ -115,7 +115,7 @@ def ArcFaceLoss(labels, features):
 
     scale=64.
     margin=0.8
-    embedding_dim = 1024
+    embedding_dim = 1664
     num_classes=1383
     easy_margin=True
     scope=None
