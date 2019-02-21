@@ -60,7 +60,7 @@ def ArcFace(x):
 
     embedding_dim = 1664
     num_classes = 1383
-    margin=0.8
+    margin = 0.8
     features = x
 
     cos_m = math.cos(margin)
