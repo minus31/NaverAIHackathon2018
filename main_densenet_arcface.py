@@ -1,23 +1,24 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-
 import os
 import argparse
 import time
-
 import nsml
 import numpy as np
 import math
 from nsml import DATASET_PATH
 import keras
 import tensorflow as tf
+
+
 from keras.models import Sequential, Model
 from keras.layers import Dense, Dropout, Flatten, Activation
 from keras.layers import Conv2D, MaxPooling2D, Lambda
 from keras.callbacks import ReduceLROnPlateau
 from keras.preprocessing.image import ImageDataGenerator
-from keras.applications.resnet50 import preprocess_input
+from keras.applications.densenet import preprocess_input
+
 from build_model import build_DenseNet169_pretrained
 
 # Score
