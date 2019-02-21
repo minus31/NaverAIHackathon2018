@@ -23,7 +23,7 @@ from build_model import build_DenseNet169_pretrained
 
 # Score
 # checkpoint - score
-#      0     - 0.6787675138977849
+#      2     - 0.6787675138977849
 
 
 def bind_model(model):
@@ -115,7 +115,7 @@ def get_feature(model, queries, db):
 def ArcFaceLoss(labels, features):
 
     scale=64.
-    margin=0.8
+    margin=0.5
     embedding_dim = 1664
     num_classes=1383
     easy_margin=True
@@ -131,7 +131,7 @@ def ArcFaceLoss(labels, features):
     labels = tf.argmax(labels, axis=-1)
 
     cosine_theta_2 = tf.pow(cosine, 2., name='cosine_theta_2') # 가중치와 피쳐 상의 각을 제곱
-    sine_theta = tf.pow(1. - cosine_theta_2, .5, name='sine_theta') #
+    sine_theta = tf.pow(1. - cosine_theta_2, .5, name='sine_theta')  2 3
 
     cosine_theta_m = scale * (cos_m * cosine - sin_m * sine_theta) * one_hot_mask
 
