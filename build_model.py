@@ -59,7 +59,7 @@ import math
 def ArcFace(x):
 
     embedding_dim = 1664
-    num_classes=1383
+    num_classes = 1383
     margin=0.8
     features = x
 
