@@ -23,7 +23,7 @@ from build_model import build_DenseNet169_pretrained
 
 # Score
 # checkpoint - score
-#      2     - 0.6787675138977849
+#
 
 
 def bind_model(model):
@@ -72,6 +72,7 @@ def bind_model(model):
     nsml.bind(save=save, load=load, infer=infer)
 
 
+
 def l2_normalize(v):
 
     norm = np.linalg.norm(v, axis=1, keepdims=True)
@@ -111,6 +112,27 @@ def get_feature(model, queries, db):
 
     return queries, query_vecs, db, reference_vecs
 
+def ArcLoss2(labels, features):
+
+    N = tf.shape(labels)[0]
+    s = 64.
+    m1 = 1.
+    m2 = 0.5
+    m3 = 0.
+
+    target_cos = tf.reduce_sum(tf.cast(labels, tf.float32) * features, axis=-1)
+    target_cos = tf.cos(tf.math.acos(target_cos) * m1 + m2) - m3
+    target_cos = tf.exp(s * target_cos)
+
+    others = tf.multiply(tf.subtract(tf.cast(labels, tf.float32), 1.0), features)
+    others = tf.exp(s * others)
+    others = tf.reduce_sum(others, axis=-1)
+
+    log_sum = tf.log(tf.divide(target_cos, tf.add(target_cos, others)))
+
+    output = -1. * tf.reduce_mean(log_sum)
+
+    return output
 
 def ArcFaceLoss(labels, features):
 
@@ -122,6 +144,7 @@ def ArcFaceLoss(labels, features):
     scope=None
 
     cosine = features
+
     cos_m = math.cos(margin)
     sin_m = math.sin(margin)
     mm = math.sin(math.pi - margin) * margin
@@ -131,7 +154,7 @@ def ArcFaceLoss(labels, features):
     labels = tf.argmax(labels, axis=-1)
 
     cosine_theta_2 = tf.pow(cosine, 2., name='cosine_theta_2') # 가중치와 피쳐 상의 각을 제곱
-    sine_theta = tf.pow(1. - cosine_theta_2, .5, name='sine_theta')  2 3
+    sine_theta = tf.pow(1. - cosine_theta_2, .5, name='sine_theta')
 
     cosine_theta_m = scale * (cos_m * cosine - sin_m * sine_theta) * one_hot_mask
 
@@ -176,16 +199,14 @@ if __name__ == '__main__':
 
         """ Initiate RMSprop optimizer """
         opt = keras.optimizers.rmsprop(lr=0.00045, decay=1e-6)
-        model.compile(loss=ArcFaceLoss,
+        model.compile(loss=ArcLoss2,
                       optimizer=opt)
         nsml.save('bt')
         print('dataset path', DATASET_PATH)
 
-        train_datagen = ImageDataGenerator(
-            preprocessing_function=preprocess_input,
-            shear_range=0.2,
-            zoom_range=0.2,
-            horizontal_flip=True)
+        train_datagen = ImageDataGenerator(preprocessing_function=preprocess_input,
+        zoom_range=0.2, vertical_flip=True,
+        horizontal_flip=True, validation_split=0.1)
 
         train_generator = train_datagen.flow_from_directory(
             directory=DATASET_PATH + '/train/train_data',
@@ -193,7 +214,17 @@ if __name__ == '__main__':
             color_mode="rgb",
             batch_size=batch_size,
             class_mode="categorical",
-            shuffle=True
+            shuffle=True,
+            subset='training'
+        )
+        val_generator = train_datagen.flow_from_directory(
+            directory=DATASET_PATH + '/train/train_data',
+            target_size=input_shape[:2],
+            color_mode="rgb",
+            batch_size=batch_size,
+            class_mode="categorical",
+            shuffle=True,
+            subset='validation'
         )
 
         """ Callback """
@@ -208,6 +239,8 @@ if __name__ == '__main__':
             res = model.fit_generator(generator=train_generator,
                                       steps_per_epoch=STEP_SIZE_TRAIN,
                                       initial_epoch=epoch,
+                                      validation_data = val_generator,
+                                      validation_steps = val_generator.samples // batch_size,
                                       epochs=epoch + 1,
                                       callbacks=[reduce_lr],
                                       verbose=1,
@@ -215,7 +248,7 @@ if __name__ == '__main__':
             t2 = time.time()
             print(res.history)
             print('Training time for one epoch : %.1f' % ((t2 - t1)))
-            train_loss = res.history['loss'][0]
-            nsml.report(summary=True, epoch=epoch, epoch_total=nb_epoch, loss=train_loss)
+            val_loss = res.history['val_loss'][0]
+            nsml.report(summary=True, epoch=epoch, epoch_total=nb_epoch, loss=val_loss)
             nsml.save(epoch)
         print('Total training time : %.1f' % (time.time() - t0))
