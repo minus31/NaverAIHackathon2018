@@ -20,7 +20,7 @@ from keras.preprocessing.image import ImageDataGenerator
 from keras.applications.densenet import preprocess_input
 
 from build_model import build_DenseNet169_pretrained
-
+from build_model import build_new_model
 # Score
 # checkpoint - score
 #
@@ -52,9 +52,16 @@ def bind_model(model):
         query_vecs = l2_normalize(query_vecs)
         reference_vecs = l2_normalize(reference_vecs)
 
+
         # Calculate cosine similarity
         sim_matrix = np.dot(query_vecs, reference_vecs.T)
+
+
+        # neg_dist_mat = np.asarray([[l2_distance(p, r) for r in reference_vecs] for p in query_vecs])
+
+
         indices = np.argsort(sim_matrix, axis=1)
+        # indices = np.argsort(neg_dist_mat, axis=1)
         indices = np.flip(indices, axis=1)
 
         retrieval_results = {}
@@ -71,7 +78,8 @@ def bind_model(model):
     # DONOTCHANGE: They are reserved for nsml
     nsml.bind(save=save, load=load, infer=infer)
 
-
+def l2_distance(p, q):
+    return np.linalg.norm(p - q)
 
 def l2_normalize(v):
 
@@ -85,7 +93,8 @@ def get_feature(model, queries, db):
     img_size = (224, 224)
     test_path = DATASET_PATH + '/test/test_data'
 
-    intermediate_layer_model = Model(inputs=model.input, outputs=model.layers[-1].output)
+
+    intermediate_layer_model = Model(inputs=model.input, outputs=model.layers[-2].output)
     test_datagen = ImageDataGenerator(preprocessing_function=preprocess_input ,dtype='float32')
     query_generator = test_datagen.flow_from_directory(
         directory=test_path,
@@ -128,42 +137,19 @@ def ArcLoss2(labels, features):
     others = tf.exp(s * others)
     others = tf.reduce_sum(others, axis=-1)
 
-    log_sum = tf.log(tf.divide(target_cos, tf.add(target_cos, others)))
+    log_ = tf.log(tf.divide(target_cos, tf.add(target_cos, others)))
 
-    output = -1. * tf.reduce_mean(log_sum)
+    output = -1. * tf.divide(tf.reduce_sum(log_), tf.cast(N, tf.float32))
 
     return output
 
-def ArcFaceLoss(labels, features):
+def FocalLoss(labels, features, num_classes=1383, gamma=1.0, scope=None):
 
-    scale=64.
-    margin=0.5
-    embedding_dim = 1664
-    num_classes=1383
-    easy_margin=True
-    scope=None
+    one_hot = labels
+    prob = tf.nn.softmax(features)
 
-    cosine = features
+    return tf.reduce_mean(tf.reduce_sum(one_hot * (0. - tf.pow(1. - prob, gamma) * tf.nn.log_softmax(features)), axis=-1), name='focal_loss')
 
-    cos_m = math.cos(margin)
-    sin_m = math.sin(margin)
-    mm = math.sin(math.pi - margin) * margin
-    threshold = math.cos(math.pi - margin)
-
-    one_hot_mask = tf.cast(labels, tf.float32)
-    labels = tf.argmax(labels, axis=-1)
-
-    cosine_theta_2 = tf.pow(cosine, 2., name='cosine_theta_2') # 가중치와 피쳐 상의 각을 제곱
-    sine_theta = tf.pow(1. - cosine_theta_2, .5, name='sine_theta')
-
-    cosine_theta_m = scale * (cos_m * cosine - sin_m * sine_theta) * one_hot_mask
-
-    clip_mask = tf.to_float(cosine >= threshold) * scale * mm * one_hot_mask
-
-    cosine = scale * cosine * (1. - one_hot_mask) + tf.where(clip_mask > 0., cosine_theta_m, clip_mask)
-
-    return tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(labels=tf.cast(labels, tf.int64),
-                                                                        logits=cosine), name='arc_loss')
 
 if __name__ == '__main__':
     args = argparse.ArgumentParser()
@@ -186,7 +172,7 @@ if __name__ == '__main__':
     num_classes = config.num_classes
     input_shape = (224, 224, 3)  # input image shape
 
-    model = build_DenseNet169_pretrained(input_shape)
+    model = build_new_model(input_shape)
 
     bind_model(model)
 
@@ -199,7 +185,7 @@ if __name__ == '__main__':
 
         """ Initiate RMSprop optimizer """
         opt = keras.optimizers.rmsprop(lr=0.00045, decay=1e-6)
-        model.compile(loss=ArcLoss2,
+        model.compile(loss=FocalLoss,
                       optimizer=opt)
         nsml.save('bt')
         print('dataset path', DATASET_PATH)
@@ -233,6 +219,7 @@ if __name__ == '__main__':
 
         """ Training loop """
         STEP_SIZE_TRAIN = train_generator.n // train_generator.batch_size
+        STEP_SIZE_VAL = val_generator.n // val_generator.batch_size
         t0 = time.time()
         for epoch in range(nb_epoch):
             t1 = time.time()
@@ -240,7 +227,7 @@ if __name__ == '__main__':
                                       steps_per_epoch=STEP_SIZE_TRAIN,
                                       initial_epoch=epoch,
                                       validation_data = val_generator,
-                                      validation_steps = val_generator.samples // batch_size,
+                                      validation_steps = STEP_SIZE_VAL,
                                       epochs=epoch + 1,
                                       callbacks=[reduce_lr],
                                       verbose=1,
